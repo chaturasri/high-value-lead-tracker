@@ -1,0 +1,255 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "e0a54a2d-20bb-4753-b915-a1e6f9d0d08e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/n8n-io/n8n/stargazers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [208, 0],
+      "id": "0ee2412e-1596-480b-b15a-287b4face3ea",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/users/{{$json[\"login\"]}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [416, 0],
+      "id": "0d85ce60-31ad-4fde-8bc7-46e7fbfcae88",
+      "name": "HTTP Request1",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "94863a67-2571-4de6-ba74-920ed13ad2d3",
+              "leftValue": "={{$json.public_repos}}",
+              "rightValue": 50,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "d01fc0af-7af4-40a7-ac46-d385713430ef",
+              "leftValue": "={{$json[\"followers\"]}} ",
+              "rightValue": 100,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [624, 0],
+      "id": "9712b993-0a7e-449c-8ce3-ecd0e57869da",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c5673579-8e96-43eb-a2b6-dbd4e983e76e",
+              "name": "pitch",
+              "value": "This developer is highly active in open source and could be a great collaboration opportunity.",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [832, -96],
+      "id": "090232d4-b53c-4475-adc0-4fa8a78901cf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://discord.com/api/webhooks/1486265976742740109/SSzR6epSfLu9bVvd5ZrxEFA_yMBKt1Eztx_LgWwO-62ClTmzVKvT6E18yqU_g5IsyNC4 ",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "=🚀 High Value Lead!\n\n👤 Name: {{$json.name}}\n🧠 Bio: {{$json.bio}}\n💼 Company: {{$json.company}}\n\n💡 Pitch: {{$json.pitch}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [1376, -112],
+      "id": "8debfb52-44bc-43f3-b0e7-79c67eccad3a",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1232, -64],
+      "id": "1e28539b-f64e-4136-aa5d-febddff72554",
+      "name": "Wait",
+      "webhookId": "c4291f0c-9e63-4c6b-8585-115ba1fa01af"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [1040, -96],
+      "id": "83a09b3c-988e-4c5e-9e43-b80abb62b3e7",
+      "name": "Limit"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2dfc8dcd-582e-4881-b0d9-b3aead35b9c2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "96be1a4c2fdd8d44fd06f2db564400be5c35709e48754a2f4151e78d21032ab3"
+  },
+  "id": "zitCuE7JSJe31YEf",
+  "tags": []
+}
